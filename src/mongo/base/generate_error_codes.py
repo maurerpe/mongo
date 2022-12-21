@@ -94,7 +94,7 @@ def main(argv):
                 categories=error_classes,
                 )
 
-        with open(output, 'wb') as outfile:
+        with open(output, 'wt') as outfile:
             outfile.write(text)
 
 def die(message=None):

@@ -389,7 +389,7 @@ win_version_min_choices = {
 }
 
 add_option('win-version-min',
-    choices=win_version_min_choices.keys(),
+    choices=list(win_version_min_choices.keys()),
     default=None,
     help='minimum Windows version to support',
     type='choice',
@@ -470,7 +470,7 @@ add_option('git-decider',
 )
 
 try:
-    with open("version.json", "r") as version_fp:
+    with open("version.json", "rt") as version_fp:
         version_data = json.load(version_fp)
 
     if 'version' not in version_data:
@@ -494,11 +494,13 @@ except ValueError as e:
     print("Error decoding version.json: {0}".format(e))
     Exit(1)
 
+version_data['version'] = version_data['version'].decode('ascii')
+
 # Setup the command-line variables
 def variable_shlex_converter(val):
     # If the argument is something other than a string, propogate
     # it literally.
-    if not isinstance(val, basestring):
+    if not isinstance(val, str):
         return val
     parse_mode = get_option('variable-parse-mode')
     if parse_mode == 'auto':
@@ -827,7 +829,7 @@ SConsignFile(str(sconsDataDir.File('sconsign')))
 def printLocalInfo():
     import sys, SCons
     print( "scons version: " + SCons.__version__ )
-    print( "python version: " + " ".join( [ `i` for i in sys.version_info ] ) )
+    print( "python version: " + " ".join( [ str(i) for i in sys.version_info ] ) )
 
 printLocalInfo()
 
@@ -1623,13 +1625,13 @@ if env.TargetOSIs('posix'):
                          "-Wno-unknown-pragmas",
                          "-Winvalid-pch"] )
     # env.Append( " -Wconversion" ) TODO: this doesn't really work yet
-    if env.TargetOSIs('linux', 'darwin', 'solaris'):
-        if not has_option("disable-warnings-as-errors"):
-            env.Append( CCFLAGS=["-Werror"] )
+    #if env.TargetOSIs('linux', 'darwin', 'solaris'):
+    #    if not has_option("disable-warnings-as-errors"):
+    #        env.Append( CCFLAGS=["-Werror"] )
 
     env.Append( CXXFLAGS=["-Woverloaded-virtual"] )
-    if env.ToolchainIs('clang'):
-        env.Append( CXXFLAGS=['-Werror=unused-result'] )
+    #if env.ToolchainIs('clang'):
+    #    env.Append( CXXFLAGS=['-Werror=unused-result'] )
 
     # On OS X, clang doesn't want the pthread flag at link time, or it
     # issues warnings which make it impossible for us to declare link
@@ -1934,9 +1936,9 @@ def doConfigure(myenv):
         # For GCC, we don't need anything since bad flags are already errors, but
         # adding -Werror won't hurt. For clang, bad flags are only warnings, so we need -Werror
         # to make them real errors.
-        cloned.Append(CCFLAGS=['-Werror'])
+        #cloned.Append(CCFLAGS=['-Werror'])
         conf = Configure(cloned, help=False, custom_tests = {
-                'CheckFlag' : lambda(ctx) : CheckFlagTest(ctx, tool, extension, flag)
+                'CheckFlag' : lambda ctx : CheckFlagTest(ctx, tool, extension, flag)
         })
         available = conf.CheckFlag()
         conf.Finish()
@@ -2068,7 +2070,7 @@ def doConfigure(myenv):
             return ret
 
         myenvClone = myenv.Clone()
-        myenvClone.Append( CCFLAGS=['-Werror'] )
+        #myenvClone.Append( CCFLAGS=['-Werror'] )
         myenvClone.Append( CXXFLAGS=["-Wnon-virtual-dtor"] )
         conf = Configure(myenvClone, help=False, custom_tests = {
             'CheckNonVirtualDtor' : CheckNonVirtualDtor,
@@ -3093,7 +3095,7 @@ def doConfigure(myenv):
 
                         size_t initialZeros = (mask == 0 ? size : __builtin_ctzll(mask));
                         if (initialZeros != offset) {{
-			    return 1;
+                            return 1;
                         }}
 
                         if (offset < size) {{
@@ -3101,7 +3103,7 @@ def doConfigure(myenv):
                         }}
                     }}
 
-		    return 0;
+                    return 0;
                 }}
             """.format(index)
 
@@ -3114,7 +3116,7 @@ def doConfigure(myenv):
 
         outputIndex = next((idx for idx in [0,1] if conf.CheckAltivecVbpermqOutput(idx)), None)
         if outputIndex is not None:
-	    conf.env.SetConfigHeaderDefine("MONGO_CONFIG_ALTIVEC_VEC_VBPERMQ_OUTPUT_INDEX", outputIndex)
+            conf.env.SetConfigHeaderDefine("MONGO_CONFIG_ALTIVEC_VEC_VBPERMQ_OUTPUT_INDEX", outputIndex)
         else:
             myenv.ConfError("Running on ppc64le, but can't find a correct vec_vbpermq output index.  Compiler or platform not supported")
 

@@ -7,7 +7,7 @@ def generate( header, source, language_files ):
     for x in language_files:
         print( "\t%s" % x )
 
-    out = open( header, "wb" )
+    out = open( header, "wt" )
     out.write( """
 #pragma once
 #include <set>
@@ -24,7 +24,7 @@ namespace fts {
 
 
 
-    out = open( source, "wb" )
+    out = open( source, "wt" )
     out.write( '#include "%s"' % header.rpartition( "/" )[2].rpartition( "\\" )[2] )
     out.write( """
 namespace mongo {
@@ -40,7 +40,7 @@ namespace fts {
         out.write( '  // %s\n' % l_file )
         out.write( '  {\n' )
         out.write( '   const char* const words[] = {\n' )
-        for word in open( l_file, "rb" ):
+        for word in open( l_file, "rt" ):
             out.write( '       "%s",\n' % word.strip() )
         out.write( '   };\n' )
         out.write( '   const size_t wordcnt = sizeof(words) / sizeof(words[0]);\n' )

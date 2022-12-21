@@ -41,7 +41,7 @@ def exists(env):
     for line in pipe.stdout:
         if isgnu:
             continue  # consume all data
-        isgnu = re.search(r'^GNU ar', line)
+        isgnu = re.search(r'^GNU ar', line.decode('utf-8'))
 
     return bool(isgnu)
 

@@ -10,6 +10,7 @@
 /perf.data.old
 /massif.out.*
 /smoke-last.json
+/mongodb-org-server/usr/bin/mongod
 
 *~
 *.swp
@@ -40,6 +41,7 @@
 *.*sdf
 *.psess
 *.tmp
+*.deb
 *#
 .#*
 
